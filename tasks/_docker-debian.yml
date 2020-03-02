@@ -1,0 +1,54 @@
+---
+
+# ==============================================================================
+#   Pre-installation
+# ==============================================================================
+
+- name: Docker | Remove old versions (Debian).
+  become: true
+  package:
+    name:
+      - docker
+      - docker-engine
+    state: absent
+
+- name: Docker | Add dependencies (Debian).
+  become: true
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - gnupg2
+    state: present
+
+- name: Docker | Add Docker apt key (Debian).
+  become: true
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+    state: present
+  register: add_repository_key
+  ignore_errors: "{{ docker_apt_ignore_key_error }}"
+
+- name: Docker | Add curl; systems without SNI (Debian).
+  become: true
+  package:
+    name: curl
+    state: present
+  when: add_repository_key is failed
+
+- name: Docker | Add apt key; alternative for systems without SNI (Debian).
+  become: true
+  shell: |
+    set -o pipefail
+    curl -sSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  args:
+    warn: false
+  when: add_repository_key is failed
+
+- name: Docker | Add Docker repository (Debian).
+  become: true
+  apt_repository:
+    repo: "{{ docker_apt_repository }}"
+    state: present
+    update_cache: true

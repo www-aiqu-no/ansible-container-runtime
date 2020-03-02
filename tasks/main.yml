@@ -1,0 +1,18 @@
+---
+# tasks file for nomad
+
+# ==============================================================================
+#   Description
+# ==============================================================================
+
+- name: Docker | Include tasks and variables
+  block:
+    #- include_vars: docker.yml
+    - include_tasks: _docker.yml
+  when: docker_enabled | bool
+
+- name: Podman | Include tasks and variables
+  block:
+    #- include_vars: _podman.yml
+    - include_tasks: _podman.yml
+  when: podman_enabled | bool

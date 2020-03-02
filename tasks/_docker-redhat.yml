@@ -1,0 +1,55 @@
+---
+
+# ==============================================================================
+#   Pre-installation (RedHat)
+# ==============================================================================
+
+- name: Docker | RedHat
+  block:
+
+    - name: Docker | Remove old versions (RedHat).
+      become: true
+      package:
+        name:
+          - docker
+          - docker-common
+          - docker-engine
+        state: absent
+
+    - name: Docker | Add GPG key (RedHat).
+      become: true
+      rpm_key:
+        key: https://download.docker.com/linux/centos/gpg
+        state: present
+
+    - name: Docker | Add repository (RedHat).
+      become: true
+      get_url:
+        url: "{{ docker_yum_repo_url }}"
+        dest: '/etc/yum.repos.d/docker-{{ docker_edition }}.repo'
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Docker | Configure Edge repo (RedHat).
+      become: true
+      ini_file:
+        dest: '/etc/yum.repos.d/docker-{{ docker_edition }}.repo'
+        section: 'docker-{{ docker_edition }}-edge'
+        option: enabled
+        value: '{{ docker_yum_repo_enable_edge }}'
+
+    - name: Docker | Configure Test repo (RedHat).
+      become: true
+      ini_file:
+        dest: '/etc/yum.repos.d/docker-{{ docker_edition }}.repo'
+        section: 'docker-{{ docker_yum_repo_url }}-test'
+        option: enabled
+        value: '{{ docker_yum_repo_enable_test }}'
+
+    - name: Docker | Install containerd separately; CentOS 8 (RedHat).
+      become: true
+      package:
+        name: https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
+        state: present
+      when: ansible_distribution_major_version | int == 8

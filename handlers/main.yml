@@ -1,0 +1,19 @@
+---
+# handlers file for consul
+
+- name: reload_daemon
+  become: true
+  systemd:
+    daemon_reload: yes
+
+- name: restart_unit_docker
+  become: true
+  systemd:
+    name: docker
+    state: restarted
+
+- name: restart_unit_podman
+  become: true
+  systemd:
+    name: podman
+    state: restarted

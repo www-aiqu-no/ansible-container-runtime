@@ -1,0 +1,12 @@
+---
+
+- name: install
+  hosts: all
+  gather_facts: true
+
+  tasks:
+
+    - include_role:
+        name: role
+      vars:
+        docker_enabled: true

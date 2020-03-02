@@ -1,0 +1,51 @@
+---
+
+# ==============================================================================
+#   Prepare
+# ==============================================================================
+
+- debug:
+    msg: "Starting installation on {{ ansible_os_family }}."
+
+- name: Docker | Import tasks and variables
+  block:
+    - include_vars: "_docker.yml"
+    - include_tasks: "_docker-{{ ansible_os_family | lower }}.yml"
+  when: >
+    ansible_os_family == 'Debian' or
+    ansible_os_family == 'RedHat'
+
+# ==============================================================================
+#   Install
+# ==============================================================================
+
+- name: Docker | Install
+  become: true
+  package:
+    name: "{{ docker_package }}"
+    state: "{{ docker_package_state }}"
+  notify: restart_unit_docker
+
+- name: Docker | Enable service
+  become: true
+  service:
+    name: docker
+    state: "{{ docker_service_state }}"
+    enabled: "{{ docker_service_enabled }}"
+
+- name: Docker | Execute handlers
+  meta: flush_handlers
+
+# ==============================================================================
+#   Configure
+# ==============================================================================
+
+- name: Docker | Users
+  block:
+    - name: Docker | Add Users
+      user:
+        name: "{{ item }}"
+        groups: docker
+        append: true
+      loop: "{{ docker_users }}"
+  when: docker_users | length > 0
