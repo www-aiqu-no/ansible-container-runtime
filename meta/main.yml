@@ -20,7 +20,8 @@ galaxy_info:
         - 18.04
 
   galaxy_tags:
-    - consul
-    - hashicorp
+    - container
+    - docker
+    - podman
 
 # dependencies: []

@@ -43,6 +43,7 @@
 - name: Docker | Users
   block:
     - name: Docker | Add Users
+      become: true
       user:
         name: "{{ item }}"
         groups: docker
